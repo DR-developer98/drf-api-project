@@ -1,7 +1,10 @@
+from django.http import Http404
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Profile
 from .serializers import ProfileSerializer
+
 
 class ProfileList(APIView):
     """
@@ -12,6 +15,40 @@ class ProfileList(APIView):
     def get(self, request):
         # Hiermee retourneren we alle profielen
         profiles = Profile.objects.all()
+        # we geven hier many=True door, omdat het hier om een queryset gaat
         serializer = ProfileSerializer(profiles, many=True)
         # We retourneren alle profielen in de respons
         return Response(serializer.data)
+
+    # Er is geen noodzaak tot een POST methode, want een Profiel wordt
+    # aangemaakt bij de aanmaak van een gebruiker dankzij de signals
+
+
+class ProfileDetail(APIView):
+    """
+    Returns one single profile based on its id
+    Handles inexistance of a profile
+    """
+    serializer_class = ProfileSerializer
+    def get_object(self, pk):
+        try:
+            profile = Profile.objects.get(pk=pk)
+            return profile
+        except Profile.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        profile = self.get_object(pk)
+        # Het is hier niet nodig om many=True door te geven aan de Serializer
+        # Dit is, omdat we met één enkele instantie van een profiel te maken 
+        # hebben
+        serializer = ProfileSerializer(profile)
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        profile = self.get_object(pk)
+        serializer = ProfileSerializer(profile, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
