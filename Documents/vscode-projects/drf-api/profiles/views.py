@@ -17,7 +17,9 @@ class ProfileList(APIView):
         # Hiermee retourneren we alle profielen
         profiles = Profile.objects.all()
         # we geven hier many=True door, omdat het hier om een queryset gaat
-        serializer = ProfileSerializer(profiles, many=True)
+        serializer = ProfileSerializer(
+            profiles, many=True, context={'request': request}
+            )
         # We retourneren alle profielen in de respons
         return Response(serializer.data)
 
@@ -30,6 +32,9 @@ class ProfileDetail(APIView):
     Returns one single profile based on its id
     Handles inexistance of a profile
     """
+    # serializer_class = ProfileSerializer --->
+    # zorgt voor een mooi voor mensen leesbaar formulier
+    # met alle velden die in de Meta-klasse zijn opgesomd
     serializer_class = ProfileSerializer
     permission_classes = [IsOwnerOrReadOnly]
 
