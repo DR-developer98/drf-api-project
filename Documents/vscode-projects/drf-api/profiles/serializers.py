@@ -7,6 +7,21 @@ from .models import Profile
 class ProfileSerializer(serializers.ModelSerializer):
     # Dit is, opdat dit veld niet bijgewerkt kan worden
     owner = serializers.ReadOnlyField(source="owner.username")
+    # Door .SerializerMethodField te gebruiken, zorgen we voor de "Read-only"-heid van dit veld,
+    # d.w.z. dat het niet aangepast kan worden
+    is_owner = serializers.SerializerMethodField()
+
+    # om de waarde van "is_owner" op te halen, 
+    # gebruiken we de volgende methode
+    def get_is_owner(self, obj):
+        # we krijgen nu toegang tot het context-object 
+        # zoals hieronder getoond
+        request = self.context['request']
+        # onderstaand retourneert true, indien de gebruiker 
+        # die de request maakt ook de eigenaar van het object is
+        return request.user == obj.owner
+        # ↓↓↓ daarna voegen we 'is_owner' toe aan de field-array ↓↓↓
+
 
     class Meta:
         model = Profile
@@ -17,5 +32,5 @@ class ProfileSerializer(serializers.ModelSerializer):
         # aangemaakt.
         fields = [
             'id', 'owner', 'created_at', 'updated_at', 'name',
-            'content', 'image'
+            'content', 'image', 'is_owner',
         ]
