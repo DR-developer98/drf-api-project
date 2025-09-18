@@ -24,7 +24,7 @@ class CommentList(generics.ListCreateAPIView):
         serializer.save(owner=self.request.user)
 
 
-class CommentDetail(generics.RetrieveUpdateDestroyAPI):
+class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsOwnerOrReadOnly]
     serialier_class = CommentDetailSerializer
     queryset = Comment.objects.all()
