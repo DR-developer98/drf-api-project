@@ -1,3 +1,5 @@
+# Onderstaande import is voor de behandeling van Integrity Errors 
+# Voorkomt dubbele followings
 from django.db import IntegrityError
 from rest_framework import serializers
 from .models import Follower
