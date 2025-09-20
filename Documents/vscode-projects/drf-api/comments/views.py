@@ -3,6 +3,7 @@ from DRF_API.permissions import IsOwnerOrReadOnly
 from .models import Comment
 from .serializers import CommentSerializer, CommentDetailSerializer
 
+
 # generics. (= generic view) .List(=verzorgt GET) Create(=verzorgt PUT)
 class CommentList(generics.ListCreateAPIView):
     """
