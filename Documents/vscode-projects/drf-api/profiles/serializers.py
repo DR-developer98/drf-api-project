@@ -14,6 +14,9 @@ class ProfileSerializer(serializers.ModelSerializer):
     # d.w.z. dat het niet aangepast kan worden
     is_owner = serializers.SerializerMethodField()
     following_id = serializers.SerializerMethodField()
+    posts_count = serializers.ReadOnlyField()
+    followers_count = serializers.ReadOnlyField()
+    following_count = serializers.ReadOnlyField()
 
     # om de waarde van "is_owner" op te halen,
     # gebruiken we de volgende methode
@@ -44,8 +47,9 @@ class ProfileSerializer(serializers.ModelSerializer):
         # in de respon geretourneerd wil zien.
         # Let op: wanneer je een model door extensie van het .model
         # creëert (d.w.z. models.Model), dan wordt de primary key "id"
-        # automatisch aangemaakt. 
+        # automatisch aangemaakt.
         fields = [
             'id', 'owner', 'created_at', 'updated_at', 'name',
             'content', 'image', 'is_owner', 'following_id',
+            'posts_count', 'followers_count', 'following_count',
         ]
