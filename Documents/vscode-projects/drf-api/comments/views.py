@@ -1,4 +1,5 @@
 from rest_framework import generics, permissions
+from django_filters.rest_framework import DjangoFilterBackend
 from DRF_API.permissions import IsOwnerOrReadOnly
 from .models import Comment
 from .serializers import CommentSerializer, CommentDetailSerializer
@@ -15,6 +16,14 @@ class CommentList(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     # we willen hier alle instanties van de Comments onder een post
     queryset = Comment.objects.all()
+    filter_backends = [
+        DjangoFilterBackend,
+    ]
+    filterset_fields = [
+        # Er is een rechtstreekse relatie tussen Comment en Post, 
+        # daarom hebben geen "owner__" toestand nodig
+        'post',
+    ]
 
     # Dit zorgt ervoor dat comments automatisch gekoppeld worden 
     # aan de gebruiker die ze plaats, op het moment dat
