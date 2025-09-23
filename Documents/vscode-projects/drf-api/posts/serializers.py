@@ -12,7 +12,6 @@ class PostSerializer(serializers.ModelSerializer):
     comments_count = serializers.ReadOnlyField()
     likes_count = serializers.ReadOnlyField()
 
-
     # ingebouwde rest_framework validatiesysteem.
     # wordt aangeroepen iedere keer dat er een post aangemaakt
     # of bijgewerkt wordt
