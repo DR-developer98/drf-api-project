@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
+import dj_database_url
 
 if os.path.exists('env.py'):
 	import env
@@ -49,6 +50,9 @@ JWT_AUTH_SECURE = True
 JWT_AUTH_COOKIE = 'my-app-auth'
 # Declareer naam Refresh Token
 JWT_AUTH_REFRESH_COOKIE = 'my-refresh-token'
+# De API kan op meerdere platforms worden gedeployed. 
+# Anders worden de cookies geblokkeerd
+JWT_AUTH_SAMESITE = 'None'
 
 REST_AUTH_SERIALIZERS = {
 	'USER_DETAILS_SERIALIZER': 'DRF_API.serializers.CurrentUserSerializer'
@@ -58,13 +62,12 @@ REST_AUTH_SERIALIZERS = {
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ryhn-v@@!8bqhp2olup@f&$9lvrl*sav3er37kzy442+a$=+05'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = 'DEV' in os.environ
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'drf-api-wtp-project.herokuapp.com']
 
 # Application definition
 
@@ -84,6 +87,7 @@ INSTALLED_APPS = [
 	'allauth.account',
 	'allauth.socialaccount',
 	'dj_rest_auth.registration',
+	'corsheaders',
 	'cloudinary',
 	'rest_framework',
 	'comments',
@@ -96,6 +100,7 @@ INSTALLED_APPS = [
 SITE_ID = 1
 
 MIDDLEWARE = [
+	'corsheaders.middleware.CorsMiddleware',
 	'django.middleware.security.SecurityMiddleware',
 	'django.contrib.sessions.middleware.SessionMiddleware',
 	'django.middleware.common.CommonMiddleware',
@@ -104,6 +109,16 @@ MIDDLEWARE = [
 	'django.contrib.messages.middleware.MessageMiddleware',
 	'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ALLOWED_ORIGINS = [
+	origin for origin in [
+		os.environ.get('CLIENT_ORIGIN'),
+		os.environ.get('CLIENT_ORIGIN_DEV')
+	] if origin
+]
+
+# Enables sending cookies, so that users get authentication functionality
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'DRF_API.urls'
 
@@ -129,12 +144,17 @@ WSGI_APPLICATION = 'DRF_API.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-	'default': {
-		'ENGINE': 'django.db.backends.sqlite3',
-		'NAME': BASE_DIR / 'db.sqlite3',
+if 'DEV' in os.environ:
+	DATABASES = {
+		'default': {
+			'ENGINE': 'django.db.backends.sqlite3',
+			'NAME': BASE_DIR / 'db.sqlite3',
+			}
 	}
-}
+else:
+	DATABASES = {
+		'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
+	}
 
 
 # Password validation
